@@ -36,25 +36,30 @@
         // Initialize the map
         var map = L.map('map').setView([34.5, 36.0], 7); // Centered between Lebanon and Syria
 
-        // Add Lebanon GeoJSON
-        var lebanonData = 'https://github.com/quavki/lebanonMapProject/blob/23faf9834e2de97eaf235fc78f4d1a3493704504/data/lebanon-map.geojson'; // Path to Lebanon GeoJSON data/lebanon-map.geojson
-        fetch(lebanonData)
-            .then(response => response.json())
-            .then(data => {
-                var lebanonLayer = L.geoJSON(data, {
-                    style: { color: "blue", weight: 2 },
-                    onEachFeature: function(feature, layer) {
-                        if (feature.properties && feature.properties.name) {
-                            layer.bindPopup("<b>Lebanon Feature:</b> " + feature.properties.name);
-                        }
-                    }
-                }).addTo(map);
+        var lebanonData = 'https://raw.githubusercontent.com/quavki/lebanonMapProject/main/data/lebanon-map.geojson';
 
-                // Fit map bounds to Lebanon
-                map.fitBounds(lebanonLayer.getBounds());
-            });
+fetch(lebanonData)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("HTTP error " + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        var lebanonLayer = L.geoJSON(data, {
+            style: { color: "blue", weight: 2 },
+            onEachFeature: function(feature, layer) {
+                if (feature.properties && feature.properties.name) {
+                    layer.bindPopup("<b>Lebanon Feature:</b> " + feature.properties.name);
+                }
+            }
+        }).addTo(map);
 
-        
+        // Fit map bounds to Lebanon
+        map.fitBounds(lebanonLayer.getBounds());
+    })
+    .catch(error => console.error('Error fetching GeoJSON:', error));
+
 
         // Add a legend
         var legend = L.control({ position: 'bottomright' });
