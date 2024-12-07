@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Map: Lebanon and Syria</title>
+    <!-- Leaflet CSS and JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            margin: 20px;
+        }
+        #map {
+            height: 80vh;
+            width: 100%;
+        }
+        .info.legend {
+            background: white;
+            padding: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Map: Lebanon and Syria</h1>
+    <div id="map"></div>
+
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([34.5, 36.0], 7); // Centered between Lebanon and Syria
+
+        // Add Lebanon GeoJSON
+        var lebanonData = './data/lebanon-map.geojson'; // Path to Lebanon GeoJSON
+        fetch(lebanonData)
+            .then(response => response.json())
+            .then(data => {
+                var lebanonLayer = L.geoJSON(data, {
+                    style: { color: "blue", weight: 2 },
+                    onEachFeature: function(feature, layer) {
+                        if (feature.properties && feature.properties.name) {
+                            layer.bindPopup("<b>Lebanon Feature:</b> " + feature.properties.name);
+                        }
+                    }
+                }).addTo(map);
+
+                // Fit map bounds to Lebanon
+                map.fitBounds(lebanonLayer.getBounds());
+            });
+
+        
+
+        // Add a legend
+        var legend = L.control({ position: 'bottomright' });
+        legend.onAdd = function(map) {
+            var div = L.DomUtil.create('div', 'info legend');
+            div.innerHTML += '<i style="background: blue; width: 10px; height: 10px; display: inline-block;"></i> Lebanon<br>';
+            div.innerHTML += '<i style="background: red; width: 10px; height: 10px; display: inline-block;"></i> Syria<br>';
+            return div;
+        };
+        legend.addTo(map);
+
+        // Allow user to add a marker
+        map.on('click', function(e) {
+            L.marker(e.latlng).addTo(map)
+                .bindPopup("New Marker at: " + e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4))
+                .openPopup();
+        });
+    </script>
+</body>
+</html>
