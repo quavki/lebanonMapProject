@@ -36,7 +36,7 @@
     var map = L.map('map').setView([34.5, 36.0], 7); // Center on Lebanon
 
     // Load Cleaned GeoJSON: Suburbs and Cities
-    var lebanonData = 'https://raw.githubusercontent.com/quavki/lebanonMapProject/refs/heads/main/data/lebanon-map-cleaned.json';
+    var lebanonData = 'https://raw.githubusercontent.com/quavki/lebanonMapProject/refs/heads/main/data/base_lebanon.geojson';
     fetch(lebanonData)
         .then(response => response.json())
         .then(data => {
