@@ -34,31 +34,68 @@
 
     <script>
         // Initialize the map
-        var map = L.map('map').setView([34.5, 36.0], 7); // Centered between Lebanon and Syria
+// Online and local file paths
+var onlineLebanonData = 'https://raw.githubusercontent.com/quavki/lebanonMapProject/refs/heads/main/data/lebanon-map-updated.json';
+var localLebanonData = './data/lebanon-map-updated.json'; // Local file path
 
-        var lebanonData = 'https://raw.githubusercontent.com/quavki/lebanonMapProject/refs/heads/main/data/lebanon-map-updated.json';
+// Fetch with timeout function
+function fetchWithTimeout(url, options, timeout = 5000) { // Timeout set to 5 seconds
+    return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout')), timeout)
+        )
+    ]);
+}
 
-fetch(lebanonData)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("HTTP error " + response.status);
-        }
-        return response.json();
-    })
-    .then(data => {
-        var lebanonLayer = L.geoJSON(data, {
-            style: { color: "blue", weight: 2 },
-            onEachFeature: function(feature, layer) {
-                if (feature.properties && feature.properties.name) {
-                    layer.bindPopup("<b>Lebanon Feature:</b> " + feature.properties.name);
-                }
+// Attempt to fetch data
+function fetchLebanonData() {
+    // Try fetching online data first
+    fetchWithTimeout(onlineLebanonData)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('HTTP error ' + response.status);
             }
-        }).addTo(map);
+            return response.json();
+        })
+        .then(data => {
+            loadGeoJSON(data);
+        })
+        .catch(error => {
+            console.error('Online fetch failed, trying local file:', error);
+            // If online fetch fails or times out, try local file
+            fetch(localLebanonData)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('HTTP error ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    loadGeoJSON(data);
+                })
+                .catch(localError => console.error('Local fetch also failed:', localError));
+        });
+}
 
-        // Fit map bounds to Lebanon
-        map.fitBounds(lebanonLayer.getBounds());
-    })
-    .catch(error => console.error('Error fetching GeoJSON:', error));
+// Function to load GeoJSON onto the map
+function loadGeoJSON(data) {
+    var lebanonLayer = L.geoJSON(data, {
+        style: { color: "blue", weight: 2 },
+        onEachFeature: function(feature, layer) {
+            if (feature.properties && feature.properties.name) {
+                layer.bindPopup("<b>Lebanon Feature:</b> " + feature.properties.name);
+            }
+        }
+    }).addTo(map);
+
+    map.fitBounds(lebanonLayer.getBounds());
+}
+
+// Initialize the map
+var map = L.map('map').setView([34.5, 36.0], 7);
+fetchLebanonData();
+
 
 
         // Add a legend
