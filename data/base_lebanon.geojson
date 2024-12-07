@@ -1,0 +1,9 @@
+{
+"type": "FeatureCollection",
+"name": "base_lebanon",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "id": null, "testing": "L" }, "geometry": { "type": "Point", "coordinates": [ 36.078072833139721, 34.543197185571969 ] } },
+{ "type": "Feature", "properties": { "id": 1, "testing": "L" }, "geometry": { "type": "Point", "coordinates": [ 36.282025887884984, 34.570670313950892 ] } }
+]
+}
