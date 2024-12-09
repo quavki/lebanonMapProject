@@ -4,34 +4,174 @@
         <title>Interactive Map with Add Point Feature</title>
         <!-- Leaflet CSS -->
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
-        <!-- Custom CSS -->
-        <link rel="stylesheet" href="styles.css" />
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+            }
+
+            h1 {
+                text-align: center;
+                margin: 20px;
+            }
+
+            #map {
+                height: 70vh;
+                width: 100%;
+            }
+
+            #addPointButton {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                z-index: 1000;
+                padding: 10px 15px;
+                background-color: #007BFF;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            #addPointButton:hover {
+                background-color: #0056b3;
+            }
+
+            #formModal {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 20px;
+                box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+                border-radius: 10px;
+                z-index: 1001;
+                width: 300px;
+            }
+
+            label {
+                display: block;
+                margin: 5px 0;
+            }
+
+            input, textarea {
+                width: 100%;
+                margin-bottom: 10px;
+                padding: 5px;
+            }
+
+            button {
+                padding: 10px;
+                background-color: #007BFF;
+                color: white;
+                border: none;
+                cursor: pointer;
+            }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+        </style>
+        <!-- Leaflet JS -->
+        <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
     </head>
-<body>
-    <h1>Interactive Map: Lebanon</h1>
-    <div id="map"></div>
-    <button id="addPointButton">Add New Point</button>
+    <body>
+        <h1>Interactive Map: Lebanon</h1>
+        <div id="map"></div>
+        <button id="addPointButton">Add New Point</button>
 
-    <!-- Modal for Adding New Points -->
-    <div id="formModal">
-        <h3>Add a New Location</h3>
-        <label for="title">Title:</label>
-        <input type="text" id="title" placeholder="Enter the title" required />
-        <label for="description">Description:</label>
-        <textarea id="description" placeholder="Enter a description"></textarea>
-        <label for="latitude">Latitude:</label>
-        <input type="number" id="latitude" placeholder="Enter latitude" required />
-        <label for="longitude">Longitude:</label>
-        <input type="number" id="longitude" placeholder="Enter longitude" required />
-        <label for="tags">Tags (comma-separated):</label>
-        <input type="text" id="tags" placeholder="e.g., culture, biodiversity" />
-        <label for="image">Image URL:</label>
-        <input type="text" id="image" placeholder="Enter image URL (optional)" />
-        <button id="savePoint">Save</button>
-        <button id="closeModal">Cancel</button>
-    </div>
+        <!-- Modal for Adding New Points -->
+        <div id="formModal">
+            <h3>Add a New Location</h3>
+            <label for="title">Title:</label>
+            <input type="text" id="title" placeholder="Enter the title" required />
+            <label for="description">Description:</label>
+            <textarea id="description" placeholder="Enter a description"></textarea>
+            <label for="latitude">Latitude:</label>
+            <input type="number" id="latitude" placeholder="Enter latitude" required />
+            <label for="longitude">Longitude:</label>
+            <input type="number" id="longitude" placeholder="Enter longitude" required />
+            <label for="tags">Tags (comma-separated):</label>
+            <input type="text" id="tags" placeholder="e.g., culture, biodiversity" />
+            <label for="image">Image URL:</label>
+            <input type="text" id="image" placeholder="Enter image URL (optional)" />
+            <button id="savePoint">Save</button>
+            <button id="closeModal">Cancel</button>
+        </div>
 
-    <!-- Custom JS -->
-    <script src="main.js"></script>
-</body>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Initialize the map
+                var map = L.map('map').setView([33.8547, 35.8623], 8); // Centered on Lebanon
+
+                // Add OpenStreetMap base tiles
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+                }).addTo(map);
+
+                // Data array to store points
+                var points = [];
+
+                // Show the modal
+                document.getElementById('addPointButton').addEventListener('click', function () {
+                    document.getElementById('formModal').style.display = 'block';
+                });
+
+                // Close the modal
+                document.getElementById('closeModal').addEventListener('click', function () {
+                    document.getElementById('formModal').style.display = 'none';
+                });
+
+                // Save the point
+                document.getElementById('savePoint').addEventListener('click', function () {
+                    var title = document.getElementById('title').value;
+                    var description = document.getElementById('description').value;
+                    var latitude = parseFloat(document.getElementById('latitude').value);
+                    var longitude = parseFloat(document.getElementById('longitude').value);
+                    var tags = document.getElementById('tags').value.split(',').map(tag => tag.trim());
+                    var image = document.getElementById('image').value;
+
+                    if (!title || !latitude || !longitude) {
+                        alert('Title, latitude, and longitude are required.');
+                        return;
+                    }
+
+                    // Create popup content
+                    var popupContent = `<b>${title}</b><br>${description}<br>`;
+                    if (tags.length > 0) popupContent += `<i>Tags:</i> ${tags.join(', ')}<br>`;
+                    if (image) popupContent += `<img src="${image}" style="width:100px;">`;
+
+                    // Add marker to the map
+                    L.marker([latitude, longitude]).addTo(map)
+                        .bindPopup(popupContent)
+                        .openPopup();
+
+                    // Save point to array
+                    points.push({
+                        title: title,
+                        description: description,
+                        latitude: latitude,
+                        longitude: longitude,
+                        tags: tags,
+                        image: image
+                    });
+
+                    console.log('Saved point:', points);
+
+                    // Hide the modal and clear the form
+                    document.getElementById('formModal').style.display = 'none';
+                    document.getElementById('title').value = '';
+                    document.getElementById('description').value = '';
+                    document.getElementById('latitude').value = '';
+                    document.getElementById('longitude').value = '';
+                    document.getElementById('tags').value = '';
+                    document.getElementById('image').value = '';
+                });
+            });
+        </script>
+    </body>
 </html>
