@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Map with Input Form</title>
+    <!-- Leaflet CSS and JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            margin: 20px;
+        }
+        #map {
+            height: 70vh;
+            width: 100%;
+        }
+        #form {
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-top: 2px solid #ccc;
+        }
+        label {
+            display: block;
+            margin: 5px 0;
+        }
+        input, textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+        button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Map with Input Form</h1>
+    <div id="map"></div>
+    <div id="form">
+        <h3>Add a New Location</h3>
+        <label for="title">Title:</label>
+        <input type="text" id="title" placeholder="Enter the title" required />
+        <label for="description">Description:</label>
+        <textarea id="description" placeholder="Enter a description"></textarea>
+        <label for="latitude">Latitude:</label>
+        <input type="number" id="latitude" placeholder="Enter latitude" required />
+        <label for="longitude">Longitude:</label>
+        <input type="number" id="longitude" placeholder="Enter longitude" required />
+        <label for="tags">Tags (comma-separated):</label>
+        <input type="text" id="tags" placeholder="e.g., culture, biodiversity" />
+        <label for="image">Image URL:</label>
+        <input type="text" id="image" placeholder="Enter image URL (optional)" />
+        <button id="addPoint">Add to Map</button>
+    </div>
+
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([33.8547, 35.8623], 8); // Centered on Lebanon
+
+        // Add OpenStreetMap base tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+        }).addTo(map);
+
+        // Array to store added points
+        var points = [];
+
+        // Add point to the map when form is submitted
+        document.getElementById('addPoint').addEventListener('click', function() {
+            // Get form values
+            var title = document.getElementById('title').value;
+            var description = document.getElementById('description').value;
+            var latitude = parseFloat(document.getElementById('latitude').value);
+            var longitude = parseFloat(document.getElementById('longitude').value);
+            var tags = document.getElementById('tags').value.split(',').map(tag => tag.trim());
+            var image = document.getElementById('image').value;
+
+            // Validate input
+            if (!title || !latitude || !longitude) {
+                alert('Title, latitude, and longitude are required.');
+                return;
+            }
+
+            // Create popup content
+            var popupContent = `<b>${title}</b><br>${description}<br>`;
+            if (tags.length > 0) popupContent += `<i>Tags:</i> ${tags.join(', ')}<br>`;
+            if (image) popupContent += `<img src="${image}" style="width:100px;">`;
+
+            // Add marker to the map
+            var marker = L.marker([latitude, longitude]).addTo(map)
+                .bindPopup(popupContent)
+                .openPopup();
+
+            // Save point to the array
+            points.push({
+                title: title,
+                description: description,
+                latitude: latitude,
+                longitude: longitude,
+                tags: tags,
+                image: image
+            });
+
+            console.log('Added point:', points);
+
+            // Clear the form
+            document.getElementById('title').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('latitude').value = '';
+            document.getElementById('longitude').value = '';
+            document.getElementById('tags').value = '';
+            document.getElementById('image').value = '';
+        });
+    </script>
+</body>
+</html>

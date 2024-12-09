@@ -1,58 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Interactive Map: Lebanon</title>
-    <!-- Leaflet CSS and JS -->
+    <title>Interactive Map with Add Point Feature</title>
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        h1 {
-            text-align: center;
-            margin: 20px;
-        }
-        #map {
-            height: 80vh;
-            width: 100%;
-        }
-    </style>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
     <h1>Interactive Map: Lebanon</h1>
     <div id="map"></div>
+    <button id="addPointButton">Add New Point</button>
 
-    <script>
-        // Check if Leaflet is loaded
-        if (typeof L === 'undefined') {
-            console.error('Leaflet library not loaded. Please check the Leaflet CDN links.');
-        } else {
-            // Initialize the map
-            var map = L.map('map').setView([33.8547, 35.8623], 8); // Center on Lebanon
+    <!-- Modal for Adding New Points -->
+    <div id="formModal">
+        <h3>Add a New Location</h3>
+        <label for="title">Title:</label>
+        <input type="text" id="title" placeholder="Enter the title" required />
+        <label for="description">Description:</label>
+        <textarea id="description" placeholder="Enter a description"></textarea>
+        <label for="latitude">Latitude:</label>
+        <input type="number" id="latitude" placeholder="Enter latitude" required />
+        <label for="longitude">Longitude:</label>
+        <input type="number" id="longitude" placeholder="Enter longitude" required />
+        <label for="tags">Tags (comma-separated):</label>
+        <input type="text" id="tags" placeholder="e.g., culture, biodiversity" />
+        <label for="image">Image URL:</label>
+        <input type="text" id="image" placeholder="Enter image URL (optional)" />
+        <button id="savePoint">Save</button>
+        <button id="closeModal">Cancel</button>
+    </div>
 
-            // Add OpenStreetMap base tiles
-            var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
-            });
-
-            // Check if the tile layer is initialized properly
-            if (tileLayer) {
-                tileLayer.addTo(map);
-            } else {
-                console.error('Failed to initialize tile layer.');
-            }
-
-            // Allow the user to add markers dynamically
-            map.on('click', function(e) {
-                L.marker(e.latlng).addTo(map)
-                    .bindPopup("New Marker at: " + e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4))
-                    .openPopup();
-            });
-        }
-    </script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <!-- Custom JS -->
+    <script src="main.js"></script>
 </body>
 </html>
