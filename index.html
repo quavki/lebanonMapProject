@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Interactive Map with Add Point Feature</title>
+        <title>Interactive Map: Lebanon</title>
         <!-- Leaflet CSS -->
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+        <!-- Select2 CSS -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
         <style>
             body {
                 font-family: Arial, sans-serif;
@@ -57,7 +59,7 @@
                 margin: 5px 0;
             }
 
-            input, textarea {
+            input, textarea, select {
                 width: 100%;
                 margin-bottom: 10px;
                 padding: 5px;
@@ -74,9 +76,17 @@
             button:hover {
                 background-color: #0056b3;
             }
+
+            #closeModal {
+                background-color: #dc3545;
+            }
         </style>
         <!-- Leaflet JS -->
         <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+        <!-- Select2 JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+        <!-- EXIF JS -->
+        <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
     </head>
     <body>
         <h1>Interactive Map: Lebanon</h1>
@@ -90,88 +100,22 @@
             <input type="text" id="title" placeholder="Enter the title" required />
             <label for="description">Description:</label>
             <textarea id="description" placeholder="Enter a description"></textarea>
+            <label for="tags">Tags:</label>
+            <select id="tags" multiple>
+                <option value="culture">Culture</option>
+                <option value="biodiversity">Biodiversity</option>
+                <option value="tree">Tree</option>
+            </select>
+            <label for="image">Upload Image:</label>
+            <input type="file" id="image" accept="image/*" />
             <label for="latitude">Latitude:</label>
             <input type="number" id="latitude" placeholder="Enter latitude" required />
             <label for="longitude">Longitude:</label>
             <input type="number" id="longitude" placeholder="Enter longitude" required />
-            <label for="tags">Tags (comma-separated):</label>
-            <input type="text" id="tags" placeholder="e.g., culture, biodiversity" />
-            <label for="image">Image URL:</label>
-            <input type="text" id="image" placeholder="Enter image URL (optional)" />
             <button id="savePoint">Save</button>
             <button id="closeModal">Cancel</button>
         </div>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                // Initialize the map
-                var map = L.map('map').setView([33.8547, 35.8623], 8); // Centered on Lebanon
-
-                // Add OpenStreetMap base tiles
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
-                }).addTo(map);
-
-                // Data array to store points
-                var points = [];
-
-                // Show the modal
-                document.getElementById('addPointButton').addEventListener('click', function () {
-                    document.getElementById('formModal').style.display = 'block';
-                });
-
-                // Close the modal
-                document.getElementById('closeModal').addEventListener('click', function () {
-                    document.getElementById('formModal').style.display = 'none';
-                });
-
-                // Save the point
-                document.getElementById('savePoint').addEventListener('click', function () {
-                    var title = document.getElementById('title').value;
-                    var description = document.getElementById('description').value;
-                    var latitude = parseFloat(document.getElementById('latitude').value);
-                    var longitude = parseFloat(document.getElementById('longitude').value);
-                    var tags = document.getElementById('tags').value.split(',').map(tag => tag.trim());
-                    var image = document.getElementById('image').value;
-
-                    if (!title || !latitude || !longitude) {
-                        alert('Title, latitude, and longitude are required.');
-                        return;
-                    }
-
-                    // Create popup content
-                    var popupContent = `<b>${title}</b><br>${description}<br>`;
-                    if (tags.length > 0) popupContent += `<i>Tags:</i> ${tags.join(', ')}<br>`;
-                    if (image) popupContent += `<img src="${image}" style="width:100px;">`;
-
-                    // Add marker to the map
-                    L.marker([latitude, longitude]).addTo(map)
-                        .bindPopup(popupContent)
-                        .openPopup();
-
-                    // Save point to array
-                    points.push({
-                        title: title,
-                        description: description,
-                        latitude: latitude,
-                        longitude: longitude,
-                        tags: tags,
-                        image: image
-                    });
-
-                    console.log('Saved point:', points);
-
-                    // Hide the modal and clear the form
-                    document.getElementById('formModal').style.display = 'none';
-                    document.getElementById('title').value = '';
-                    document.getElementById('description').value = '';
-                    document.getElementById('latitude').value = '';
-                    document.getElementById('longitude').value = '';
-                    document.getElementById('tags').value = '';
-                    document.getElementById('image').value = '';
-                });
-            });
-        </script>
+        <script src="main.js"></script>
     </body>
 </html>
